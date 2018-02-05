@@ -1,6 +1,10 @@
 import Foundation
+#if os(OSX) || os(iOS) || os(tvOS)
 import StoreKit
 
+@available(OSX 10.13.2, *)
+@available(iOS 11.2, *)
+@available(tvOS 11.2, *)
 extension SKProductSubscriptionPeriod {
 
 	/// A localized description for a product subscription period.
@@ -32,3 +36,5 @@ extension SKProductSubscriptionPeriod {
 		return formatter.string(from: components)
 	}
 }
+
+#endif

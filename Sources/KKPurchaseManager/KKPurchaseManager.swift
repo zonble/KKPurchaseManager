@@ -1,4 +1,5 @@
 import Foundation
+#if os(OSX) || os(iOS) || os(tvOS)
 import StoreKit
 
 @objc public protocol KKPurchaseManagerDelegate: class {
@@ -61,6 +62,7 @@ import StoreKit
 		self.resetProducts()
 	}
 
+	/// Start to fetch SKProduct objects from StoreKit API.
 	@objc public func updateProducts() {
 		NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(updateProducts), object: nil)
 		self.productRequest?.cancel()
@@ -74,6 +76,7 @@ import StoreKit
 		self.productRequest?.start()
 	}
 
+	/// Reset the list of current products.
 	@objc public func resetProducts() {
 		NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(updateProducts), object: nil)
 		self.productRequest?.cancel()
@@ -82,6 +85,12 @@ import StoreKit
 		self.products = [SKProduct]()
 	}
 
+
+	/// Start to purchase one or more product.
+	///
+	/// - Parameters:
+	///   - product: the product to purchase.
+	///   - quantity: the quantity.
 	@objc public func purchase(product: SKProduct, quantity: Int) {
 		for transaction in SKPaymentQueue.default().transactions {
 			if transaction.transactionState != .purchasing {
@@ -99,6 +108,7 @@ import StoreKit
 		SKPaymentQueue.default().add(payment)
 	}
 
+	/// Start to restore completed transactions.
 	@objc public func restoreCompletedTransactions() {
 		SKPaymentQueue.default().restoreCompletedTransactions()
 	}
@@ -172,3 +182,4 @@ import StoreKit
 
 }
 
+#endif
