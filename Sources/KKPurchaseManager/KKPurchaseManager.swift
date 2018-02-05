@@ -15,9 +15,16 @@ import StoreKit
 	@objc optional func purchaseManager(_ manager: KKPurchaseManager, shouldAdd payment:SKPayment, for product: SKProduct) -> Bool
 }
 
-public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTransactionObserver {
-	weak var delegate: KKPurchaseManagerDelegate?
-	public var productsIDSet: Set<String> = Set<String>() {
+/// A helper that helps to do In-app Purchase.
+@objc public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTransactionObserver {
+
+	/// The delegate object of the class.
+	@objc public weak var delegate: KKPurchaseManagerDelegate?
+
+	/// A set of desired product IDs. Once the product ID set is set, and
+	/// the manager has started to observe SKPaymentQueue, the manager
+	/// starts to fetch SKProduct objects via StoreKit.
+	@objc public var productsIDSet: Set<String> = Set<String>() {
 		didSet {
 			self.resetProducts()
 			if self.running == false {
@@ -26,8 +33,12 @@ public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTr
 			self.updateProducts()
 		}
 	}
-	public private (set) var products: [SKProduct] = [SKProduct]()
-	public private (set) var running = false
+
+	/// The fetched In-App Purchase products.
+	@objc public private (set) var products: [SKProduct] = [SKProduct]()
+
+	/// If the manager is observing the default SKPaymentQueue.
+	@objc public private (set) var running = false
 	private var productRequest: SKProductsRequest?
 
 	deinit {
@@ -35,6 +46,7 @@ public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTr
 		NotificationCenter.default.removeObserver(self)
 	}
 
+	/// Start observing the transactrion queue.
 	@objc public func addTransactionObserver() {
 		SKPaymentQueue.default().add(self)
 		self.running = true
@@ -42,6 +54,7 @@ public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTr
 		self.updateProducts()
 	}
 
+	/// Stop observing the transactrion queue.
 	@objc public func removeTransactionObserver() {
 		SKPaymentQueue.default().remove(self)
 		self.running = false
@@ -69,7 +82,7 @@ public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTr
 		self.products = [SKProduct]()
 	}
 
-	@objc public func purchase(product: SKProduct) {
+	@objc public func purchase(product: SKProduct, quantity: Int) {
 		for transaction in SKPaymentQueue.default().transactions {
 			if transaction.transactionState != .purchasing {
 				continue
@@ -82,6 +95,7 @@ public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTr
 		if let name = self.delegate?.purchaseManagerDidAskApplicatonUserName?(self) {
 			payment.applicationUsername = name
 		}
+		payment.quantity = quantity
 		SKPaymentQueue.default().add(payment)
 	}
 
@@ -89,7 +103,7 @@ public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTr
 		SKPaymentQueue.default().restoreCompletedTransactions()
 	}
 
-	//MARK:-
+	//MARK: - SKProductsRequestDelegate
 
 	public func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
 		NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(updateProducts), object: nil)
@@ -106,7 +120,7 @@ public class KKPurchaseManager: NSObject, SKProductsRequestDelegate, SKPaymentTr
 		self.perform(#selector(updateProducts), with: nil, afterDelay: 30)
 	}
 
-	//MARK:-
+	//MARK: - SKPaymentTransactionObserver
 
 	public func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
 		var purchasedTransactions = [SKPaymentTransaction]()
