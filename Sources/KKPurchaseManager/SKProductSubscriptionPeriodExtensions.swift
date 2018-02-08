@@ -5,7 +5,7 @@ import StoreKit
 @available(OSX 10.13.2, *)
 @available(iOS 11.2, *)
 @available(tvOS 11.2, *)
-extension SKProductSubscriptionPeriod {
+	extension SKProductSubscriptionPeriod {
 
 	/// A localized description for a product subscription period.
 	@objc var localizedDescription: String? {

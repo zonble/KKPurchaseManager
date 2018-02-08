@@ -100,7 +100,10 @@ extension KKPurchaseManagerError: LocalizedError {
 
 //MARK: -
 
-/// A helper that helps to do In-app Purchase.
+/// A helper that helps to do In-app Purchase. The manager manipulates
+/// various API for IAP in one place including fetching the list of
+/// products, purchasing products, and restoring receipts for
+/// completed transactions.
 @objc public class KKPurchaseManager: NSObject {
 
 	/// The delegate object of the class. See `KKPurchaseManagerDelegate`.
